@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Console (Demo) | EstimatePro ERP</title>
+<meta name="description" content="Internal content-management demo for EstimatePro ERP. Not linked publicly.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0B1F3A">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  body{background:var(--off-white);}
+  .admin-shell{max-width:1100px; margin:0 auto; padding:var(--space-7) var(--space-5) var(--space-9);}
+  .admin-header{display:flex; align-items:center; justify-content:space-between; gap:var(--space-4); margin-bottom:var(--space-7); flex-wrap:wrap;}
+  .admin-header h1{font-size:var(--fs-xl); margin:0;}
+  .admin-warning{
+    background:var(--orange-100); color:#8a4a1f; border-radius:var(--radius-md); padding:var(--space-4) var(--space-5);
+    font-size:var(--fs-sm); margin-bottom:var(--space-7); display:flex; gap:.65rem; align-items:flex-start;
+  }
+  .admin-warning svg{width:20px; height:20px; flex-shrink:0; margin-top:1px;}
+  .admin-gate{
+    max-width:380px; margin:var(--space-10) auto; background:var(--surface); border:1px solid var(--border);
+    border-radius:var(--radius-lg); padding:var(--space-7); box-shadow:var(--shadow-md); text-align:center;
+  }
+  .admin-gate h1{font-size:var(--fs-lg); margin-bottom:var(--space-2);}
+  .admin-gate p{font-size:var(--fs-xs); color:var(--text-muted); margin-bottom:var(--space-5);}
+  .admin-gate input{
+    width:100%; padding:.7rem .9rem; border:1px solid var(--gray-200); border-radius:var(--radius-sm);
+    font-size:var(--fs-sm); margin-bottom:var(--space-4); text-align:center; letter-spacing:.1em;
+  }
+  .admin-gate-error{color:#C0392B; font-size:var(--fs-xs); margin-top:var(--space-3); display:none;}
+  .admin-gate-error.is-visible{display:block;}
+  .admin-tabs{display:flex; gap:.5rem; border-bottom:1px solid var(--border); margin-bottom:var(--space-6); flex-wrap:wrap;}
+  .admin-tab{
+    padding:.7rem 1.1rem; font-size:var(--fs-sm); font-weight:700; color:var(--text-muted);
+    border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px;
+  }
+  .admin-tab.is-active{color:var(--navy-900); border-bottom-color:var(--emerald-600);}
+  .admin-panel{display:none;}
+  .admin-panel.is-active{display:block;}
+  .admin-toolbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:var(--space-5); gap:var(--space-3); flex-wrap:wrap;}
+  .admin-table-wrap{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden;}
+  table.admin-table{width:100%; border-collapse:collapse; font-size:var(--fs-sm);}
+  table.admin-table th, table.admin-table td{padding:.75rem 1rem; text-align:left; border-bottom:1px solid var(--border);}
+  table.admin-table th{background:var(--gray-100); font-size:var(--fs-xs); text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted);}
+  table.admin-table tr:last-child td{border-bottom:none;}
+  table.admin-table .num{text-align:right; font-variant-numeric:tabular-nums;}
+  .admin-row-actions{display:flex; gap:.4rem; justify-content:flex-end;}
+  .admin-icon-btn{
+    width:30px; height:30px; border-radius:var(--radius-sm); border:1px solid var(--gray-200); background:#fff;
+    display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--gray-600);
+  }
+  .admin-icon-btn:hover{background:var(--gray-100);}
+  .admin-icon-btn svg{width:15px; height:15px;}
+  .admin-icon-btn--danger:hover{background:#FDECEA; color:#C0392B;}
+  .admin-empty{padding:var(--space-7); text-align:center; color:var(--text-muted); font-size:var(--fs-sm);}
+  .admin-form-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:var(--space-3); margin-bottom:var(--space-5); align-items:end;}
+  .admin-form-grid .form-field{margin:0;}
+  .admin-form-grid label{display:block; font-size:.7rem; font-weight:700; color:var(--text-muted); margin-bottom:.3rem; text-transform:uppercase;}
+  .admin-form-grid input, .admin-form-grid select{
+    width:100%; padding:.6rem .75rem; border:1px solid var(--gray-200); border-radius:var(--radius-sm); font-size:var(--fs-sm);
+  }
+  .admin-notice-box{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-md); padding:var(--space-5);}
+  .admin-notice-box textarea{
+    width:100%; min-height:80px; padding:.7rem .9rem; border:1px solid var(--gray-200); border-radius:var(--radius-sm);
+    font-family:var(--font-body); font-size:var(--fs-sm); margin-bottom:var(--space-4); resize:vertical;
+  }
+  .admin-save-status{font-size:var(--fs-xs); color:var(--emerald-600); font-weight:700; margin-top:var(--space-3); display:none;}
+  .admin-save-status.is-visible{display:block;}
+  @media (max-width:768px){.admin-form-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:480px){.admin-form-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<header class="site-header is-scrolled">
+  <div class="container header-inner">
+    <a href="index.html" class="brand" aria-label="EstimatePro ERP home">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 21V9L12 3L21 9V21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 21V13H15V21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span class="brand-name">Estimate<strong>Pro</strong> ERP <span style="font-weight:600; color:var(--text-muted); font-size:var(--fs-xs); margin-left:.4rem;">/ Admin</span></span>
+    </a>
+    <div class="header-actions">
+      <a href="index.html" class="btn btn-secondary btn-sm">Back to Site</a>
+    </div>
+  </div>
+</header>
+
+<main class="admin-shell" style="padding-top:calc(var(--header-h) + var(--space-7));">
+
+  <!-- Gate: simple demo-only password screen -->
+  <div class="admin-gate" id="admin-gate">
+    <h1>Admin Console</h1>
+    <p>Demo-only access screen. This is a static site with no real backend or authentication — anyone who edits the page source can see the demo code. Do not use this pattern for real admin security.</p>
+    <input type="password" id="admin-gate-input" placeholder="Demo passcode" autocomplete="off">
+    <button type="button" class="btn btn-primary btn-block" id="admin-gate-submit">Enter Demo Console</button>
+    <p class="admin-gate-error" id="admin-gate-error">Incorrect passcode. Hint: it's "demo123" for this preview.</p>
+  </div>
+
+  <!-- Console (hidden until gate passed) -->
+  <div id="admin-console" hidden>
+    <div class="admin-header">
+      <h1>Content Console <span style="color:var(--text-muted); font-weight:500; font-size:var(--fs-sm);">(Demo)</span></h1>
+      <button type="button" class="btn btn-secondary btn-sm" id="admin-logout">Exit Console</button>
+    </div>
+
+    <div class="admin-warning">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a2 2 0 001.7 3h15.2a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>Rate Library and Pricing Plan edits here are saved to <strong>this browser's local storage</strong> and will appear on the live <code>index.html</code> dashboard and Pricing section — but only on this same browser/device, since nothing is sent to a server. Clearing your browser data, or opening the site on a different device, will reset everything back to the defaults. The Notice Board tab below is a preview only and does not affect the live banner.</span>
+    </div>
+
+    <div class="admin-warning" style="background:var(--blue-100); color:var(--blue-600);">
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M13 2L3 14h7l-1 8 10-12h-7l1-8z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <span>To reset everything to the original demo data, clear this site's local storage in your browser, or use a private/incognito window.</span>
+    </div>
+
+    <div class="admin-tabs" role="tablist">
+      <button type="button" class="admin-tab is-active" data-admin-tab="rates" role="tab" aria-selected="true">Rate Library (BOQ)</button>
+      <button type="button" class="admin-tab" data-admin-tab="plans" role="tab" aria-selected="false">Pricing Plans</button>
+      <button type="button" class="admin-tab" data-admin-tab="notice" role="tab" aria-selected="false">Notice Board</button>
+    </div>
+
+    <!-- Rate Library panel -->
+    <section class="admin-panel is-active" data-admin-panel="rates">
+      <div class="admin-toolbar">
+        <p style="margin:0; color:var(--text-muted); font-size:var(--fs-sm);">Add, edit, or remove BOQ rate items used in estimates.</p>
+        <button type="button" class="btn btn-primary btn-sm" id="rate-add-btn">+ Add Rate Item</button>
+      </div>
+
+      <div class="admin-form-grid" id="rate-form" hidden>
+        <div class="form-field">
+          <label for="rate-item">Item Name</label>
+          <input type="text" id="rate-item" placeholder="e.g. Cement Concrete M20">
+        </div>
+        <div class="form-field">
+          <label for="rate-unit">Unit</label>
+          <select id="rate-unit">
+            <option>Sq.ft</option><option>Sq.m</option><option>R.ft</option><option>R.m</option>
+            <option>Cft</option>
+            <option>Cum</option><option>Kg</option><option>Ton</option><option>Nos</option><option>Job</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="rate-amount">Rate (NPR)</label>
+          <input type="number" id="rate-amount" placeholder="0" min="0" step="1">
+        </div>
+        <div class="form-field" style="display:flex; gap:.5rem;">
+          <button type="button" class="btn btn-primary btn-sm" id="rate-save-btn" style="flex:1;">Save</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="rate-cancel-btn" style="flex:1;">Cancel</button>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Item</th><th>Unit</th><th class="num">Rate (NPR)</th><th></th></tr></thead>
+          <tbody id="rate-table-body"></tbody>
+        </table>
+        <div class="admin-empty" id="rate-empty" hidden>No rate items yet. Click "Add Rate Item" to create one.</div>
+      </div>
+    </section>
+
+    <!-- Pricing Plans panel -->
+    <section class="admin-panel" data-admin-panel="plans">
+      <div class="admin-toolbar">
+        <p style="margin:0; color:var(--text-muted); font-size:var(--fs-sm);">Manage the plan names and short descriptions shown on the public Pricing section.</p>
+        <button type="button" class="btn btn-primary btn-sm" id="plan-add-btn">+ Add Plan</button>
+      </div>
+
+      <div class="admin-form-grid" id="plan-form" hidden>
+        <div class="form-field">
+          <label for="plan-name">Plan Name</label>
+          <input type="text" id="plan-name" placeholder="e.g. Starter">
+        </div>
+        <div class="form-field" style="grid-column:span 2;">
+          <label for="plan-desc">Short Description</label>
+          <input type="text" id="plan-desc" placeholder="e.g. For small contractors getting organized">
+        </div>
+        <div class="form-field" style="display:flex; gap:.5rem;">
+          <button type="button" class="btn btn-primary btn-sm" id="plan-save-btn" style="flex:1;">Save</button>
+          <button type="button" class="btn btn-secondary btn-sm" id="plan-cancel-btn" style="flex:1;">Cancel</button>
+        </div>
+      </div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>Plan</th><th>Description</th><th></th></tr></thead>
+          <tbody id="plan-table-body"></tbody>
+        </table>
+        <div class="admin-empty" id="plan-empty" hidden>No plans yet. Click "Add Plan" to create one.</div>
+      </div>
+    </section>
+
+    <!-- Notice Board panel -->
+    <section class="admin-panel" data-admin-panel="notice">
+      <p style="margin:0 0 var(--space-4); color:var(--text-muted); font-size:var(--fs-sm);">Preview text for the scrolling announcement banner at the top of the site. (Demo only — editing here does not update the live banner.)</p>
+      <div class="admin-notice-box">
+        <textarea id="notice-textarea" placeholder="Announcement message..."></textarea>
+        <button type="button" class="btn btn-primary btn-sm" id="notice-save-btn">Save Preview Text</button>
+        <p class="admin-save-status" id="notice-save-status">Saved to local demo storage.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom" style="border-top:none; padding-top:var(--space-7);">
+      <span>&copy; <span data-year>2026</span> EstimatePro ERP. Admin demo console — not linked publicly, no real backend.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  document.querySelectorAll("[data-year]").forEach((el) => {
+    el.textContent = new Date().getFullYear();
+  });
+
+  /**
+   * DEMO-ONLY NOTICE
+   * This passcode gate is NOT real security. It exists only to demonstrate
+   * an admin-console UI pattern on a static site. The "passcode" is visible
+   * in this very file's source code. Do not reuse this approach for any
+   * page that needs genuine access control — that requires a real backend
+   * with server-side authentication.
+   */
+  const DEMO_PASSCODE = "demo123";
+  const gate = document.querySelector("#admin-gate");
+  const consoleEl = document.querySelector("#admin-console");
+  const gateInput = document.querySelector("#admin-gate-input");
+  const gateError = document.querySelector("#admin-gate-error");
+  const SESSION_KEY = "estimatepro-admin-demo-session";
+
+  function unlock() {
+    gate.hidden = true;
+    consoleEl.hidden = false;
+    try { sessionStorage.setItem(SESSION_KEY, "1"); } catch (e) { /* ignore */ }
+  }
+  document.querySelector("#admin-gate-submit").addEventListener("click", () => {
+    if (gateInput.value === DEMO_PASSCODE) {
+      unlock();
+    } else {
+      gateError.classList.add("is-visible");
+    }
+  });
+  gateInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.querySelector("#admin-gate-submit").click();
+  });
+  document.querySelector("#admin-logout").addEventListener("click", () => {
+    try { sessionStorage.removeItem(SESSION_KEY); } catch (e) { /* ignore */ }
+    consoleEl.hidden = true;
+    gate.hidden = false;
+    gateInput.value = "";
+  });
+  try {
+    if (sessionStorage.getItem(SESSION_KEY) === "1") unlock();
+  } catch (e) { /* ignore */ }
+
+  /* ---------------- Tabs ---------------- */
+  const tabs = document.querySelectorAll(".admin-tab");
+  const panels = document.querySelectorAll(".admin-panel");
+  tabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      tabs.forEach((t) => { t.classList.remove("is-active"); t.setAttribute("aria-selected", "false"); });
+      panels.forEach((p) => p.classList.remove("is-active"));
+      tab.classList.add("is-active");
+      tab.setAttribute("aria-selected", "true");
+      document.querySelector('[data-admin-panel="' + tab.dataset.adminTab + '"]').classList.add("is-active");
+    });
+  });
+
+  /* ---------------- Generic localStorage CRUD helper ---------------- */
+  function loadList(key, fallback) {
+    try {
+      const raw = localStorage.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
+  }
+  function saveList(key, list) {
+    try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) { /* ignore */ }
+  }
+
+  const trashIcon = '<svg viewBox="0 0 24 24" fill="none"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const editIcon = '<svg viewBox="0 0 24 24" fill="none"><path d="M4 20l1-4 11-11 3 3-11 11-4 1z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+
+  function escapeHtml(str) {
+    const div = document.createElement("div");
+    div.textContent = String(str);
+    return div.innerHTML;
+  }
+
+  /* ---------------- Rate Library ---------------- */
+  const RATE_KEY = "estimatepro-admin-rates";
+  const defaultRates = [
+    { id: "r1", item: "Cement Concrete M20", unit: "Cum", amount: 6410 },
+    { id: "r2", item: 'Brickwork 9"', unit: "Sq.m", amount: 2865 },
+    { id: "r3", item: "Steel Reinforcement", unit: "Kg", amount: 129 },
+  ];
+  let rates = loadList(RATE_KEY, defaultRates);
+  let editingRateId = null;
+  const rateForm = document.querySelector("#rate-form");
+  const rateTableBody = document.querySelector("#rate-table-body");
+  const rateEmpty = document.querySelector("#rate-empty");
+
+  function renderRates() {
+    rateTableBody.innerHTML = "";
+    rateEmpty.hidden = rates.length > 0;
+    rates.forEach((r) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td>" + escapeHtml(r.item) + "</td>" +
+        "<td>" + escapeHtml(r.unit) + "</td>" +
+        '<td class="num">रू ' + Number(r.amount).toLocaleString("en-IN") + "</td>" +
+        '<td><div class="admin-row-actions">' +
+          '<button type="button" class="admin-icon-btn" data-edit-rate="' + r.id + '" aria-label="Edit ' + escapeHtml(r.item) + '">' + editIcon + "</button>" +
+          '<button type="button" class="admin-icon-btn admin-icon-btn--danger" data-delete-rate="' + r.id + '" aria-label="Delete ' + escapeHtml(r.item) + '">' + trashIcon + "</button>" +
+        "</div></td>";
+      rateTableBody.appendChild(tr);
+    });
+  }
+
+  document.querySelector("#rate-add-btn").addEventListener("click", () => {
+    editingRateId = null;
+    document.querySelector("#rate-item").value = "";
+    document.querySelector("#rate-unit").value = "Sq.ft";
+    document.querySelector("#rate-amount").value = "";
+    rateForm.hidden = false;
+  });
+  document.querySelector("#rate-cancel-btn").addEventListener("click", () => { rateForm.hidden = true; });
+  document.querySelector("#rate-save-btn").addEventListener("click", () => {
+    const item = document.querySelector("#rate-item").value.trim();
+    const unit = document.querySelector("#rate-unit").value;
+    const amount = parseFloat(document.querySelector("#rate-amount").value);
+    if (!item || Number.isNaN(amount)) return;
+    if (editingRateId) {
+      rates = rates.map((r) => (r.id === editingRateId ? Object.assign({}, r, { item: item, unit: unit, amount: amount }) : r));
+    } else {
+      rates.push({ id: "r" + Date.now(), item: item, unit: unit, amount: amount });
+    }
+    saveList(RATE_KEY, rates);
+    renderRates();
+    rateForm.hidden = true;
+  });
+  rateTableBody.addEventListener("click", (e) => {
+    const editBtn = e.target.closest("[data-edit-rate]");
+    const delBtn = e.target.closest("[data-delete-rate]");
+    if (editBtn) {
+      const editId = editBtn.dataset.editRate;
+      const r = rates.find((x) => x.id === editId);
+      if (!r) return;
+      editingRateId = editId;
+      document.querySelector("#rate-item").value = r.item;
+      document.querySelector("#rate-unit").value = r.unit;
+      document.querySelector("#rate-amount").value = r.amount;
+      rateForm.hidden = false;
+    } else if (delBtn) {
+      const delId = delBtn.dataset.deleteRate;
+      rates = rates.filter((x) => x.id !== delId);
+      saveList(RATE_KEY, rates);
+      renderRates();
+    }
+  });
+  renderRates();
+
+  /* ---------------- Pricing Plans ---------------- */
+  const PLAN_KEY = "estimatepro-admin-plans";
+  const defaultPlans = [
+    { id: "p1", name: "Starter", desc: "For small contractors getting organized." },
+    { id: "p2", name: "Professional", desc: "For growing teams running multiple projects." },
+    { id: "p3", name: "Business", desc: "For established companies scaling operations." },
+    { id: "p4", name: "Enterprise", desc: "For multi-branch, multi-company organizations." },
+  ];
+  let plans = loadList(PLAN_KEY, defaultPlans);
+  let editingPlanId = null;
+  const planForm = document.querySelector("#plan-form");
+  const planTableBody = document.querySelector("#plan-table-body");
+  const planEmpty = document.querySelector("#plan-empty");
+
+  function renderPlans() {
+    planTableBody.innerHTML = "";
+    planEmpty.hidden = plans.length > 0;
+    plans.forEach((p) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML =
+        "<td>" + escapeHtml(p.name) + "</td>" +
+        "<td>" + escapeHtml(p.desc) + "</td>" +
+        '<td><div class="admin-row-actions">' +
+          '<button type="button" class="admin-icon-btn" data-edit-plan="' + p.id + '" aria-label="Edit ' + escapeHtml(p.name) + '">' + editIcon + "</button>" +
+          '<button type="button" class="admin-icon-btn admin-icon-btn--danger" data-delete-plan="' + p.id + '" aria-label="Delete ' + escapeHtml(p.name) + '">' + trashIcon + "</button>" +
+        "</div></td>";
+      planTableBody.appendChild(tr);
+    });
+  }
+  document.querySelector("#plan-add-btn").addEventListener("click", () => {
+    editingPlanId = null;
+    document.querySelector("#plan-name").value = "";
+    document.querySelector("#plan-desc").value = "";
+    planForm.hidden = false;
+  });
+  document.querySelector("#plan-cancel-btn").addEventListener("click", () => { planForm.hidden = true; });
+  document.querySelector("#plan-save-btn").addEventListener("click", () => {
+    const name = document.querySelector("#plan-name").value.trim();
+    const desc = document.querySelector("#plan-desc").value.trim();
+    if (!name) return;
+    if (editingPlanId) {
+      plans = plans.map((p) => (p.id === editingPlanId ? Object.assign({}, p, { name: name, desc: desc }) : p));
+    } else {
+      plans.push({ id: "p" + Date.now(), name: name, desc: desc });
+    }
+    saveList(PLAN_KEY, plans);
+    renderPlans();
+    planForm.hidden = true;
+  });
+  planTableBody.addEventListener("click", (e) => {
+    const editBtn = e.target.closest("[data-edit-plan]");
+    const delBtn = e.target.closest("[data-delete-plan]");
+    if (editBtn) {
+      const editId = editBtn.dataset.editPlan;
+      const p = plans.find((x) => x.id === editId);
+      if (!p) return;
+      editingPlanId = editId;
+      document.querySelector("#plan-name").value = p.name;
+      document.querySelector("#plan-desc").value = p.desc;
+      planForm.hidden = false;
+    } else if (delBtn) {
+      const delId = delBtn.dataset.deletePlan;
+      plans = plans.filter((x) => x.id !== delId);
+      saveList(PLAN_KEY, plans);
+      renderPlans();
+    }
+  });
+  renderPlans();
+
+  /* ---------------- Notice Board preview text ---------------- */
+  const NOTICE_KEY = "estimatepro-admin-notice-preview";
+  const noticeTextarea = document.querySelector("#notice-textarea");
+  const noticeDefault = "📢 EstimatePro ERP is in active development — new modules and the Android app are rolling out in early access.";
+  noticeTextarea.value = (function () {
+    try { return localStorage.getItem(NOTICE_KEY) || noticeDefault; } catch (e) { return noticeDefault; }
+  })();
+  document.querySelector("#notice-save-btn").addEventListener("click", () => {
+    try { localStorage.setItem(NOTICE_KEY, noticeTextarea.value); } catch (e) { /* ignore */ }
+    const status = document.querySelector("#notice-save-status");
+    status.classList.add("is-visible");
+    window.setTimeout(() => status.classList.remove("is-visible"), 2500);
+  });
+})();
+</script>
+</body>
+</html>
